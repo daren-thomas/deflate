@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO.Compression;
+using System.IO;
 
 namespace inflate
 {
@@ -14,16 +15,49 @@ namespace inflate
         /// </summary>
         static void Main(string[] args)
         {
-            using (var stdin = System.Console.OpenStandardInput())
+            if (args.Length == 0)
             {
-                using (var stdout = System.Console.OpenStandardOutput())
+                using (var stdin = System.Console.OpenStandardInput())
                 {
-                    using (var deflator = new DeflateStream(stdin, CompressionMode.Decompress))
+                    using (var stdout = System.Console.OpenStandardOutput())
                     {
-                        deflator.CopyTo(stdout);
+                        using (var deflator = new DeflateStream(stdin, CompressionMode.Decompress))
+                        {
+                            deflator.CopyTo(stdout);
+                        }
                     }
                 }
             }
+            else if (args.Length == 2)
+            {
+                // copy from first arg to second arg
+                using (var infile = new FileStream(args[0], FileMode.Open, FileAccess.Read))
+                {
+                    using (var outfile = new FileStream(args[1], FileMode.Create, FileAccess.Write))
+                    {
+                        using (var deflator = new DeflateStream(infile, CompressionMode.Decompress))
+                        {
+                            deflator.CopyTo(outfile);
+                        }
+                    }
+                }
+            }
+            else if (args.Length == 1)
+            {
+                // copy from first arg to stdout
+                // copy from first arg to second arg
+                using (var infile = new FileStream(args[0], FileMode.Open, FileAccess.Read))
+                {
+                    using (var stdout = System.Console.OpenStandardOutput())
+                    {
+                        using (var deflator = new DeflateStream(infile, CompressionMode.Decompress))
+                        {
+                            deflator.CopyTo(stdout);
+                        }
+                    }
+                }
+            }
+            
         }
     }
 }
